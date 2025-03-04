@@ -68,16 +68,6 @@ function createWindow(): void {
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
   }
-
-  // Send initial clipboard content when window loads
-  mainWindow.webContents.on('did-finish-load', () => {
-    try {
-      const clipboardContent = clipboard.readText();
-      mainWindow?.webContents.send('clipboard-update', clipboardContent);
-    } catch (error) {
-      console.error('Error sending clipboard content:', error);
-    }
-  });
 }
 
 // Initialize app

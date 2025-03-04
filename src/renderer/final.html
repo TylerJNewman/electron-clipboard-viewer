@@ -73,7 +73,6 @@
       word-break: break-word;
       font-size: 14px;
       line-height: 1.5;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .loading {
@@ -113,43 +112,28 @@
           <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
         </svg>
       </div>
-      <h1>Clipboard</h1>
+      <h1>AI Summary</h1>
     </div>
     
-    <div id="clipboard-content" class="content-section">
-      <p>Press <span class="key">⌘</span> + <span class="key">⇧</span> + <span class="key">T</span> to view clipboard</p>
-    </div>
-    
-    <div id="ai-content" class="content-section hidden">
+    <div id="ai-content" class="content-section">
       <div style="display: flex; align-items: center; margin-bottom: 8px;">
-        <span style="color: var(--primary); font-weight: 500;">AI Summary</span>
+        <span style="color: var(--primary); font-weight: 500;">Clipboard Analysis</span>
         <div id="ai-loading" class="loading"></div>
       </div>
-      <div id="ai-text"></div>
+      <div id="ai-text">Press <span class="key">⌘</span> + <span class="key">⇧</span> + <span class="key">T</span> to analyze clipboard</div>
     </div>
   </div>
   
   <script>
     // Listen for clipboard updates from main process
     if (window.electronAPI) {
-      window.electronAPI.onClipboardUpdate((text) => {
-        const contentElement = document.getElementById('clipboard-content');
-        
-        if (text && text.trim()) {
-          contentElement.textContent = text;
-        } else {
-          contentElement.textContent = 'Clipboard is empty';
-        }
-      });
-
       // AI generation event handlers
       const aiContent = document.getElementById('ai-content');
       const aiText = document.getElementById('ai-text');
       const aiLoading = document.getElementById('ai-loading');
 
       window.electronAPI.onGenerationStarted(() => {
-        // Show AI section and loading indicator
-        aiContent.classList.remove('hidden');
+        // Show loading indicator
         aiLoading.style.display = 'inline-block';
         aiText.textContent = 'Analyzing...';
       });

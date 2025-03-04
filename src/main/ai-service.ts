@@ -38,29 +38,6 @@ function getApiKey(): string | null {
 }
 
 /**
- * Creates a sample config file in the user data directory
- */
-export function createSampleConfigFile(): void {
-  try {
-    const userDataPath = app.getPath('userData');
-    const configPath = path.join(userDataPath, 'config.json');
-
-    // Don't overwrite existing config
-    if (fs.existsSync(configPath)) {
-      return;
-    }
-
-    const sampleConfig = {
-      googleApiKey: "YOUR_API_KEY_HERE"
-    };
-
-    fs.writeFileSync(configPath, JSON.stringify(sampleConfig, null, 2), 'utf8');
-  } catch (error) {
-    console.error('Error creating sample config file:', error);
-  }
-}
-
-/**
  * Generates text using Google's Gemini model based on clipboard content
  * and sends the response back to the renderer
  */

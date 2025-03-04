@@ -22,12 +22,9 @@ export function registerShortcuts(mainWindow: BrowserWindow | null): void {
         mainWindow.focus();
       }
 
-      // Read clipboard and send to renderer
+      // Read clipboard and generate AI response
       const clipboardContent = clipboard.readText();
       try {
-        // Send raw clipboard content to renderer
-        mainWindow.webContents.send('clipboard-update', clipboardContent);
-
         // Generate AI response from clipboard content
         if (clipboardContent.trim()) {
           generateTextFromClipboard(clipboardContent, mainWindow);
