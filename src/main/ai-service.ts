@@ -60,7 +60,7 @@ export async function generateTextFromClipboard(
 
     const response = await generateText({
       model: google('gemini-1.5-pro-latest'),
-      prompt: `Summarize and analyze the following text: ${clipboardContent}`,
+      prompt: `${clipboardContent}`,
     });
 
     // Send the response to the renderer
