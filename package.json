@@ -4,25 +4,72 @@
   "description": "A sleek, minimal clipboard viewer inspired by Raycast",
   "main": "dist/main/index.js",
   "type": "commonjs",
+  "author": {
+    "name": "Your Name",
+    "email": "your.email@example.com"
+  },
   "scripts": {
-    "create-icon": "ts-node src/main/create-icon.ts",
+    "create-icon": "ts-node src/main/create-icon.ts && ./build/create-icons.sh",
     "dev": "NODE_ENV=development npm run build && npm start",
     "build": "rm -rf dist && mkdir -p dist/main dist/preload dist/renderer && tsc -p tsconfig.json && cp src/renderer/final.html dist/renderer/",
     "start": "electron .",
     "watch": "nodemon --watch src --ext ts,html,css --exec \"npm run build && npm start\"",
     "pack": "electron-builder --dir",
-    "dist": "npm run build && electron-builder"
+    "dist": "npm run create-icon && npm run build && electron-builder"
   },
   "build": {
     "appId": "com.yourusername.clipboard-viewer",
     "productName": "Clipboard Viewer",
     "files": [
       "dist/**/*",
-      "package.json"
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "node_modules/",
+        "to": "node_modules",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": ".env.local",
+        "to": ".env.local",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/**/*"
     ],
     "mac": {
       "category": "public.app-category.utilities",
-      "target": "dmg"
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "build/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
     },
     "win": {
       "target": "nsis"
@@ -43,6 +90,7 @@
   "dependencies": {
     "@ai-sdk/google": "^1.1.19",
     "ai": "^4.1.50",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.2"
   }
 }

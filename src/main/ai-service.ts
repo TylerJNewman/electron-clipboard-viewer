@@ -17,6 +17,12 @@ function getApiKey(): string | null {
   // Check environment variable (includes variables loaded by dotenv)
   const envApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (envApiKey) {
+    // If we found it in environment variables, save it to the config file for future use
+    try {
+      saveApiKeyToConfig(envApiKey);
+    } catch (error) {
+      console.error('Error saving API key to config:', error);
+    }
     return envApiKey;
   }
 
@@ -39,6 +45,31 @@ function getApiKey(): string | null {
 }
 
 /**
+ * Saves the API key to a config file in the user's app data directory
+ */
+function saveApiKeyToConfig(apiKey: string): void {
+  try {
+    const userDataPath = app.getPath('userData');
+    const configPath = path.join(userDataPath, 'config.json');
+
+    // Create or update the config file
+    let configData: Record<string, any> = {};
+
+    if (fs.existsSync(configPath)) {
+      configData = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    }
+
+    configData.googleApiKey = apiKey;
+
+    fs.writeFileSync(configPath, JSON.stringify(configData, null, 2));
+    console.log('API key saved to config file');
+  } catch (error) {
+    console.error('Failed to save API key to config:', error);
+    throw error;
+  }
+}
+
+/**
  * Generates text using Google's Gemini model based on clipboard content
  * and sends the response back to the renderer
  */
@@ -51,13 +82,19 @@ export async function generateTextFromClipboard(
     mainWindow.webContents.send('generation-started');
 
     // Check if API key is available
-    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    const apiKey = getApiKey();
     if (!apiKey) {
+      // Notify the renderer that we need an API key
+      mainWindow.webContents.send('api-key-required');
+
+      // Send an error message
       throw new Error(
-        'Google Generative AI API key is missing. Please add it to .env.local file:\n' +
-        'GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here'
+        'Google Generative AI API key is missing. Please add it in the Settings menu.'
       );
     }
+
+    // Set the API key in the environment variable
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY = apiKey;
 
     const stream = await streamText({
       model: google('gemini-2.0-flash-001'),

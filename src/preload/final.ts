@@ -37,6 +37,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
     });
   },
 
+  onApiKeyRequired: (callback: () => void) => {
+    ipcRenderer.on('api-key-required', () => {
+      callback();
+    });
+  },
+
+  openApiKeySettings: () => {
+    ipcRenderer.send('open-api-key-settings');
+  },
+
   dragWindow: () => {
     ipcRenderer.send('drag-window');
   }
