@@ -1,4 +1,5 @@
 import { clipboard, BrowserWindow, globalShortcut, app } from 'electron';
+import { generateTextFromClipboard } from './ai-service';
 
 export function registerShortcuts(mainWindow: BrowserWindow | null): void {
   if (!mainWindow) {
@@ -24,9 +25,15 @@ export function registerShortcuts(mainWindow: BrowserWindow | null): void {
       // Read clipboard and send to renderer
       const clipboardContent = clipboard.readText();
       try {
+        // Send raw clipboard content to renderer
         mainWindow.webContents.send('clipboard-update', clipboardContent);
+
+        // Generate AI response from clipboard content
+        if (clipboardContent.trim()) {
+          generateTextFromClipboard(clipboardContent, mainWindow);
+        }
       } catch (error) {
-        console.error('Error sending clipboard content:', error);
+        console.error('Error processing clipboard content:', error);
       }
     }
   });

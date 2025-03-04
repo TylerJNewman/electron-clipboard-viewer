@@ -63,16 +63,7 @@
       margin-left: 10px;
     }
 
-    .icon {
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary);
-    }
-
-    .clipboard-content {
+    .content-section {
       background-color: var(--surface);
       padding: var(--spacing);
       min-height: 100px;
@@ -82,37 +73,26 @@
       word-break: break-word;
       font-size: 14px;
       line-height: 1.5;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px var(--spacing);
-      color: var(--text-secondary);
-      text-align: center;
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 99, 99, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+      margin-left: 8px;
     }
 
-    .empty-state .icon {
-      font-size: 24px;
-      margin-bottom: 16px;
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
-    .footer {
-      padding: 12px var(--spacing);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .keyboard-shortcut {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+    .hidden {
+      display: none;
     }
 
     .key {
@@ -127,7 +107,7 @@
 <body>
   <div class="app-container">
     <div class="header" style="-webkit-app-region: drag;">
-      <div class="icon" style="-webkit-app-region: no-drag;">
+      <div style="-webkit-app-region: no-drag;">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
           <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
@@ -136,29 +116,16 @@
       <h1>Clipboard</h1>
     </div>
     
-    <div id="clipboard-content" class="clipboard-content">
-      <div class="empty-state">
-        <div class="icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-          </svg>
-        </div>
-        <p>Press <span class="key">⌘</span> + <span class="key">⇧</span> + <span class="key">T</span> to view clipboard</p>
-      </div>
+    <div id="clipboard-content" class="content-section">
+      <p>Press <span class="key">⌘</span> + <span class="key">⇧</span> + <span class="key">T</span> to view clipboard</p>
     </div>
     
-    <div class="footer">
-      <div class="keyboard-shortcut">
-        <span>View clipboard</span>
-        <span class="key">⌘</span>
-        <span class="key">⇧</span>
-        <span class="key">T</span>
+    <div id="ai-content" class="content-section hidden">
+      <div style="display: flex; align-items: center; margin-bottom: 8px;">
+        <span style="color: var(--primary); font-weight: 500;">AI Summary</span>
+        <div id="ai-loading" class="loading"></div>
       </div>
-      <div class="keyboard-shortcut">
-        <span>Hide window</span>
-        <span class="key">Esc</span>
-      </div>
+      <div id="ai-text"></div>
     </div>
   </div>
   
@@ -169,23 +136,38 @@
         const contentElement = document.getElementById('clipboard-content');
         
         if (text && text.trim()) {
-          // Clear the empty state and show the actual content
-          contentElement.innerHTML = '';
           contentElement.textContent = text;
         } else {
-          // Show empty state
-          contentElement.innerHTML = `
-            <div class="empty-state">
-              <div class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                </svg>
-              </div>
-              <p>Clipboard is empty</p>
-            </div>
-          `;
+          contentElement.textContent = 'Clipboard is empty';
         }
+      });
+
+      // AI generation event handlers
+      const aiContent = document.getElementById('ai-content');
+      const aiText = document.getElementById('ai-text');
+      const aiLoading = document.getElementById('ai-loading');
+
+      window.electronAPI.onGenerationStarted(() => {
+        // Show AI section and loading indicator
+        aiContent.classList.remove('hidden');
+        aiLoading.style.display = 'inline-block';
+        aiText.textContent = 'Analyzing...';
+      });
+
+      window.electronAPI.onGenerationChunk((chunk) => {
+        // Update the AI text with the new chunk
+        aiText.textContent = chunk;
+      });
+
+      window.electronAPI.onGenerationCompleted(() => {
+        // Hide loading indicator
+        aiLoading.style.display = 'none';
+      });
+
+      window.electronAPI.onGenerationError((error) => {
+        // Display error message
+        aiLoading.style.display = 'none';
+        aiText.textContent = `Error: ${error}`;
       });
     }
   </script>

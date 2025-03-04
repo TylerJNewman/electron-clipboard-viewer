@@ -1,15 +1,81 @@
-# Clipboard Viewer
+# Clipboard Viewer with AI Analysis
 
-A sleek, minimal clipboard viewer inspired by Raycast, built with Electron and TypeScript.
+A sleek, minimal clipboard viewer inspired by Raycast that includes AI analysis of clipboard content using Google's Gemini model.
 
 ## Features
 
-- Toggle clipboard viewer with a global keyboard shortcut (⌘+⇧+T or Ctrl+Shift+T)
-- Hide the window with Escape key
-- Beautiful, minimal dark UI inspired by Raycast
-- Frameless, transparent window with smooth animations
-- Automatic clipboard content updates
-- System tray icon for easy access
+- Global shortcut (Cmd+Shift+T) to view clipboard content
+- AI-powered analysis of clipboard content using Google's Gemini model
+- Elegant, minimal UI
+- Escape key to hide the window
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```
+   pnpm install
+   ```
+3. **Set up your Google Generative AI API key:**
+   
+   **Option 1: Environment Variable**
+   - Get an API key from [Google AI Studio](https://makersuite.google.com/)
+   - Set the environment variable before running the app:
+     ```bash
+     # For macOS/Linux
+     export GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+     
+     # For Windows (Command Prompt)
+     set GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+     
+     # For Windows (PowerShell)
+     $env:GOOGLE_GENERATIVE_AI_API_KEY="your_api_key_here"
+     ```
+   
+   **Option 2: .env.local File (recommended for development)**
+   - Create a `.env.local` file in the application root directory
+   - Add the following content to the file:
+     ```
+     GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+     ```
+   - The application will automatically load this file at startup using dotenv
+   
+   **Option 3: Config File**
+   - Create a `config.json` file in the application data directory
+   - Add the following content to the file:
+     ```json
+     {
+       "googleApiKey": "your_api_key_here"
+     }
+     ```
+
+4. Build and run the application:
+   ```
+   npm run build && npm start
+   ```
+
+## Development
+
+- `npm run dev` - Run in development mode
+- `npm run build` - Build the application
+- `npm run start` - Start the application
+- `npm run watch` - Watch for changes and restart
+- `npm run dist` - Build distributable packages
+
+## How It Works
+
+1. Press Cmd+Shift+T to view your clipboard content
+2. The application will automatically analyze the clipboard content using Google's Gemini AI model
+3. View both the original clipboard content and the AI analysis
+4. Press Escape to hide the window
+
+## Technologies Used
+
+- Electron
+- TypeScript
+- Google Generative AI (Gemini)
+- AI SDK
+- dotenv (for environment variable management)
 
 ## Usage
 
@@ -18,23 +84,6 @@ A sleek, minimal clipboard viewer inspired by Raycast, built with Electron and T
 - Click the tray icon to show the window
 - Right-click the tray icon for more options
 - The clipboard content is automatically updated when you copy new text
-
-## Development
-
-### Prerequisites
-
-- Node.js (v14 or later)
-- npm or yarn
-
-### Setup
-
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Start the development server: `npm run dev`
-
-### Build
-
-To build the application: `npm run build`
 
 ## License
 

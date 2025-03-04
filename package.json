@@ -39,5 +39,10 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.3.2"
   },
-  "packageManager": "pnpm@9.15.3+sha512.1f79bc245a66eb0b07c5d4d83131240774642caaa86ef7d0434ab47c0d16f66b04e21e0c086eb61e62c77efc4d7f7ec071afad3796af64892fae66509173893a"
+  "packageManager": "pnpm@9.15.3+sha512.1f79bc245a66eb0b07c5d4d83131240774642caaa86ef7d0434ab47c0d16f66b04e21e0c086eb61e62c77efc4d7f7ec071afad3796af64892fae66509173893a",
+  "dependencies": {
+    "@ai-sdk/google": "^1.1.19",
+    "ai": "^4.1.50",
+    "dotenv": "^16.4.7"
+  }
 }
