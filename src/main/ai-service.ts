@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { app } from 'electron';
 import * as dotenv from 'dotenv';
+import { createYouTubeTranscriptPrompt } from './prompts';
 
 // Load environment variables from .env files
 dotenv.config({ path: path.join(process.cwd(), '.env.local') });
@@ -60,9 +61,7 @@ export async function generateTextFromClipboard(
 
     const stream = await streamText({
       model: google('gemini-2.0-flash-001'),
-      prompt: `Please format your response using Markdown syntax for better readability. Use headings, lists, code blocks, and other Markdown features as appropriate.
-
-${clipboardContent}`,
+      prompt: createYouTubeTranscriptPrompt(clipboardContent),
     });
 
     // Process the stream using the textStream
