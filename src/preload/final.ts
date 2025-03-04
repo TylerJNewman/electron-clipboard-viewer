@@ -16,5 +16,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
       console.log('Received clipboard update:', text);
       callback(text);
     });
+  },
+
+  dragWindow: () => {
+    ipcRenderer.send('drag-window');
   }
 }); 

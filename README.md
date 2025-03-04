@@ -1,13 +1,23 @@
-# Electron Clipboard Viewer
+# Clipboard Viewer
 
-A simple, lightweight clipboard viewer built with Electron and TypeScript.
+A sleek, minimal clipboard viewer inspired by Raycast, built with Electron and TypeScript.
 
 ## Features
 
-- View clipboard content with a global keyboard shortcut (Cmd+Shift+T or Ctrl+Shift+T)
+- Toggle clipboard viewer with a global keyboard shortcut (⌘+⇧+T or Ctrl+Shift+T)
 - Hide the window with Escape key
-- Frameless, modern UI
+- Beautiful, minimal dark UI inspired by Raycast
+- Frameless, transparent window with smooth animations
 - Automatic clipboard content updates
+- System tray icon for easy access
+
+## Usage
+
+- Press `⌘+⇧+T` (macOS) or `Ctrl+Shift+T` (Windows/Linux) to show/hide the clipboard viewer
+- Press `Escape` to hide the window
+- Click the tray icon to show the window
+- Right-click the tray icon for more options
+- The clipboard content is automatically updated when you copy new text
 
 ## Development
 

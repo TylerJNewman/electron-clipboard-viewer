@@ -1,4 +1,4 @@
-import { clipboard, BrowserWindow, globalShortcut } from 'electron';
+import { clipboard, BrowserWindow, globalShortcut, app } from 'electron';
 
 export function registerShortcuts(mainWindow: BrowserWindow | null): void {
   console.log('Setting up keyboard shortcuts');
@@ -8,11 +8,23 @@ export function registerShortcuts(mainWindow: BrowserWindow | null): void {
     return;
   }
 
-  // Register global shortcut
+  // Register global shortcut for Cmd+Shift+T
   const registered = globalShortcut.register('CommandOrControl+Shift+T', () => {
     console.log('Keyboard shortcut detected: Cmd/Ctrl+Shift+T');
 
     if (mainWindow) {
+      // Toggle window visibility
+      if (mainWindow.isVisible()) {
+        // If window is already visible, just focus it
+        if (!mainWindow.isFocused()) {
+          mainWindow.focus();
+        }
+      } else {
+        // Show the window if it's hidden
+        mainWindow.show();
+        mainWindow.focus();
+      }
+
       // Read clipboard and send to renderer
       const clipboardContent = clipboard.readText();
       console.log('Clipboard content:', clipboardContent);
@@ -34,5 +46,10 @@ export function registerShortcuts(mainWindow: BrowserWindow | null): void {
     if (mainWindow && mainWindow.isVisible()) {
       mainWindow.hide();
     }
+  });
+
+  // Clean up shortcuts when app is about to quit
+  app.on('will-quit', () => {
+    globalShortcut.unregisterAll();
   });
 } 
