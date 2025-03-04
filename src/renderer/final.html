@@ -261,6 +261,7 @@
     if (window.electronAPI) {
       const aiText = document.getElementById('ai-text');
       const aiLoading = document.getElementById('ai-loading');
+      let fullContent = '';
 
       // Configure marked options
       marked.setOptions({
@@ -274,11 +275,21 @@
       window.electronAPI.onGenerationStarted(() => {
         aiLoading.classList.remove('hidden');
         aiText.textContent = '';
+        fullContent = '';
       });
 
       window.electronAPI.onGenerationChunk((chunk) => {
-        // Render the markdown
-        aiText.innerHTML = marked.parse(chunk);
+        // Append the new chunk to the full content
+        fullContent += chunk;
+        
+        // Render the markdown for the full content
+        aiText.innerHTML = marked.parse(fullContent);
+        
+        // Auto-scroll to the bottom if near the bottom
+        const container = document.getElementById('ai-content');
+        if (container.scrollHeight - container.scrollTop - container.clientHeight < 50) {
+          container.scrollTop = container.scrollHeight;
+        }
       });
 
       window.electronAPI.onGenerationCompleted(() => {

@@ -1,5 +1,5 @@
 import { google } from '@ai-sdk/google';
-import { generateText } from 'ai';
+import { generateText, streamText } from 'ai';
 import { BrowserWindow } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -58,16 +58,25 @@ export async function generateTextFromClipboard(
       );
     }
 
-    const response = await generateText({
-      model: google('gemini-1.5-pro-latest'),
+    const stream = await streamText({
+      model: google('gemini-2.0-flash-001'),
       prompt: `Please format your response using Markdown syntax for better readability. Use headings, lists, code blocks, and other Markdown features as appropriate.
 
 ${clipboardContent}`,
     });
 
-    // Send the response to the renderer
+    // Process the stream using the textStream
+    for await (const textChunk of stream.textStream) {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('generation-chunk', textChunk);
+      }
+    }
+
+    // Wait for the stream to complete
+    await stream.text;
+
+    // Signal completion
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('generation-chunk', response.text);
       mainWindow.webContents.send('generation-completed');
     }
   } catch (error: unknown) {
