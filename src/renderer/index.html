@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clipboard Viewer</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .content-card {
+        background-color: white;
+        color: black;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 80%;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      h2 {
+        margin-top: 0;
+      }
+      button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 10px 0;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content-card">
+      <h2>Clipboard Content</h2>
+      <div id="clipboard-content">Press Cmd+Shift+T to view clipboard</div>
+      <button id="manual-trigger" style="margin-top: 10px; padding: 5px 10px;">
+        Read Clipboard
+      </button>
+    </div>
+    <script>
+      // Make sure this runs immediately
+      console.log('Renderer script running');
+      
+      // Check if APIs are available
+      console.log('clipboardAPI available:', !!window.clipboardAPI);
+      console.log('electron API available:', !!window.electron);
+      console.log('testAPI available:', !!window.testAPI);
+      
+      if (window.clipboardAPI) {
+        window.clipboardAPI.onClipboardContent((content) => {
+          console.log('Renderer received content:', content);
+          document.getElementById('clipboard-content').textContent = content || '(Empty clipboard)';
+        });
+      } else {
+        console.error('clipboardAPI not available!');
+      }
+      
+      // Add manual trigger with more robust error handling
+      const button = document.getElementById('manual-trigger');
+      if (button) {
+        button.addEventListener('click', () => {
+          console.log('Manual trigger clicked');
+          try {
+            if (window.electron && window.electron.clipboard) {
+              const content = window.electron.clipboard.readText();
+              console.log('Direct clipboard read:', content);
+              document.getElementById('clipboard-content').textContent = content || '(Empty clipboard)';
+            } else {
+              console.log('No direct clipboard access, trying IPC');
+              if (window.testAPI) window.testAPI.sendTest();
+            }
+          } catch (error) {
+            console.error('Error reading clipboard:', error);
+            document.getElementById('clipboard-content').textContent = 'Error: ' + error.message;
+          }
+        });
+      } else {
+        console.error('Button element not found!');
+      }
+    </script>
+  </body>
+</html> 

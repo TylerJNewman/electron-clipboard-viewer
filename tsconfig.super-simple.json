@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/preload",
+    "sourceMap": true
+  },
+  "files": [
+    "src/preload/super-simple.ts"
+  ]
+}
