@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Clipboard Viewer</title>
+  <!-- Add marked library for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root {
       --background: rgba(26, 26, 26, 0.95);
@@ -12,6 +14,7 @@
       --text-secondary: rgba(255, 255, 255, 0.6);
       --border-radius: 12px;
       --spacing: 16px;
+      --code-bg: rgba(0, 0, 0, 0.3);
     }
 
     * {
@@ -73,6 +76,92 @@
       word-break: break-word;
       font-size: 14px;
       line-height: 1.5;
+      position: relative;
+    }
+
+    #ai-text {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Markdown styling */
+    #ai-text h1, #ai-text h2, #ai-text h3, #ai-text h4, #ai-text h5, #ai-text h6 {
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    #ai-text h1 { font-size: 1.5em; }
+    #ai-text h2 { font-size: 1.3em; }
+    #ai-text h3 { font-size: 1.1em; }
+
+    #ai-text p {
+      margin-bottom: 1em;
+    }
+
+    #ai-text ul, #ai-text ol {
+      margin-bottom: 1em;
+      padding-left: 2em;
+    }
+
+    #ai-text li {
+      margin-bottom: 0.25em;
+    }
+
+    #ai-text code {
+      font-family: "SF Mono", "Menlo", monospace;
+      background-color: var(--code-bg);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+    #ai-text pre {
+      background-color: var(--code-bg);
+      padding: 1em;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin-bottom: 1em;
+    }
+
+    #ai-text pre code {
+      background-color: transparent;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    #ai-text blockquote {
+      border-left: 3px solid var(--primary);
+      padding-left: 1em;
+      margin-left: 0;
+      margin-bottom: 1em;
+      color: var(--text-secondary);
+    }
+
+    #ai-text a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    #ai-text a:hover {
+      text-decoration: underline;
+    }
+
+    #ai-text table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 1em;
+    }
+
+    #ai-text th, #ai-text td {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.5em;
+      text-align: left;
+    }
+
+    #ai-text th {
+      background-color: rgba(255, 255, 255, 0.05);
     }
 
     .loading {
@@ -83,7 +172,9 @@
       border-radius: 50%;
       border-top-color: var(--primary);
       animation: spin 1s linear infinite;
-      margin-left: 8px;
+      position: absolute;
+      top: var(--spacing);
+      right: var(--spacing);
     }
 
     @keyframes spin {
@@ -126,13 +217,23 @@
       const aiText = document.getElementById('ai-text');
       const aiLoading = document.getElementById('ai-loading');
 
+      // Configure marked options
+      marked.setOptions({
+        breaks: true,        // Add line breaks on single line breaks
+        gfm: true,           // Use GitHub Flavored Markdown
+        headerIds: false,    // Don't add IDs to headers
+        mangle: false,       // Don't mangle email addresses
+        sanitize: false,     // Don't sanitize HTML (we trust the AI output)
+      });
+
       window.electronAPI.onGenerationStarted(() => {
         aiLoading.classList.remove('hidden');
         aiText.textContent = '';
       });
 
       window.electronAPI.onGenerationChunk((chunk) => {
-        aiText.textContent = chunk;
+        // Render the markdown
+        aiText.innerHTML = marked.parse(chunk);
       });
 
       window.electronAPI.onGenerationCompleted(() => {

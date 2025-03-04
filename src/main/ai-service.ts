@@ -60,7 +60,9 @@ export async function generateTextFromClipboard(
 
     const response = await generateText({
       model: google('gemini-1.5-pro-latest'),
-      prompt: `${clipboardContent}`,
+      prompt: `Please format your response using Markdown syntax for better readability. Use headings, lists, code blocks, and other Markdown features as appropriate.
+
+${clipboardContent}`,
     });
 
     // Send the response to the renderer
