@@ -2,9 +2,8 @@ import { app, BrowserWindow, screen, ipcMain, clipboard } from 'electron';
 import * as path from 'path';
 import { registerShortcuts } from './shortcuts';
 
+// Only keep essential logs
 console.log('==== ELECTRON APP STARTING ====');
-console.log('Process arguments:', process.argv);
-console.log('Current directory:', process.cwd());
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -30,7 +29,7 @@ function createWindow(): void {
 
   // Show window when ready
   mainWindow.once('ready-to-show', () => {
-    console.log('Window ready, waiting for shortcut to show');
+    // Window is ready but hidden until shortcut is pressed
   });
 
   // Clean up resources
@@ -38,38 +37,26 @@ function createWindow(): void {
     mainWindow = null;
   });
 
-  // Add this line after creating the window
+  // Open DevTools in development mode
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
   }
 
-  // Add this after creating the window
+  // Send initial clipboard content when window loads
   mainWindow.webContents.on('did-finish-load', () => {
-    console.log('Window loaded');
-
-    // Send clipboard content
     try {
       const clipboardContent = clipboard.readText();
-      console.log('Initial clipboard content:', clipboardContent);
       mainWindow?.webContents.send('clipboard-update', clipboardContent);
     } catch (error) {
       console.error('Error sending clipboard content:', error);
     }
   });
-
-  // Listen for renderer messages
-  ipcMain.on('test-from-renderer', (event, arg) => {
-    console.log('Received from renderer:', arg);
-  });
 }
 
 // Initialize app
 app.whenReady().then(() => {
-  console.log('==== ELECTRON APP READY ====');
   createWindow();
-  console.log('Window created');
   registerShortcuts(mainWindow);
-  console.log('Shortcuts registered');
 });
 
 // Handle macOS behavior
@@ -85,11 +72,11 @@ app.on('activate', () => {
   }
 });
 
-// Add this to your main.ts file
+// Handle window dragging
 ipcMain.on('drag-window', () => {
   if (mainWindow) {
     mainWindow.webContents.send('window-dragging');
-    mainWindow.setMovable(true); // Ensure the window is movable
+    mainWindow.setMovable(true);
   }
 });
 

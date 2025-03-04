@@ -163,15 +163,9 @@
   </div>
   
   <script>
-    console.log('Clipboard viewer loaded');
-    
-    // Check if API is available
-    console.log('electronAPI available:', !!window.electronAPI);
-    
     // Listen for clipboard updates from main process
     if (window.electronAPI) {
       window.electronAPI.onClipboardUpdate((text) => {
-        console.log('Update received:', text);
         const contentElement = document.getElementById('clipboard-content');
         
         if (text && text.trim()) {
